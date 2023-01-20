@@ -292,7 +292,7 @@ class Monte_carlo_tree_search():
         bound = min(self.maxium_action_sample,policy.shape[0])
         for i in np.sort(np.random.choice(policy.shape[0],bound, p=policy, replace=False)):
             self.node.children[i] = Node(prior=policy[i])
-            self.node.children[i].to_play = self.cycle.proximate_player_step(self.node.to_play)
+            self.node.children[i].to_play = self.node.to_play if is_child_chance else self.cycle.proximate_player_step(self.node.to_play)
             self.node.children[i].is_chance = is_child_chance
 
     def back_propagate_and_update_min_max_bound(self, search_path, value):
