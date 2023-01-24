@@ -33,7 +33,7 @@ PIP dependency : [requirement.txt](https://github.com/DHDev0/Stochastic-muzero/b
 ~~~bash
 git clone https://github.com/DHDev0/Stochastic-muzero.git
 
-cd Muzero-unplugged
+cd Stochastic-muzero
 
 pip install -r requirements.txt
 ~~~
