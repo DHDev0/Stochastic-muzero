@@ -12,8 +12,7 @@ from monte_carlo_tree_search import *
 from muzero_model import *
 from replay_buffer import *
 
-import gym
-
+import gymnasium as gym
 
 ##########################################################################################################################
 
@@ -55,6 +54,7 @@ def play_game_ray(environment=None,
 
         environment.store_search_statistics(tree)
         counter += 1
+        
     monte_carlo_tree_search.cycle.global_reset()
     environment.close()
     return environment
@@ -90,7 +90,6 @@ def play_game(environment=None,
                                                                feedback = feedback,
                                                                iteration = counter)
 
-        monte_carlo_tree_search.cycle.global_reset()
         environment.store_search_statistics(tree)
         counter += 1
         
@@ -354,7 +353,7 @@ def play_game_from_checkpoint(game_to_play='CartPole-v1',
     import random
     import time
 
-    import gym
+    import gymnasium as gym
 
     from game import Game
     from monte_carlo_tree_search import (MinMaxStats, Monte_carlo_tree_search,

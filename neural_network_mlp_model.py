@@ -241,13 +241,23 @@ class Encoder_function(nn.Module):
             (recursive_layer_sequence*number_of_hidden_layer)
 
         self.encoder = nn.Sequential(*tuple(sequence+[nn.Linear(hidden_layer_dimensions, action_dimension)]))  
-        
+        self.onehot_argmax = StraightThroughEstimator()
     def forward(self, o_i):
         #https://openreview.net/pdf?id=X6D9bAHhBQ1 [page:5 chance outcome]
         c_e_t = torch.nn.Softmax(-1)(self.encoder(o_i))
-        c_t = Onehot_argmax.apply(c_e_t)
+        c_t= torch.zeros_like(c_e_t).scatter_(-1, torch.argmax(c_e_t, dim=-1,keepdim=True), 1.)
+        # c_t = self.onehot_argmax(c_e_t)
         return c_t,c_e_t
 
+
+
+class StraightThroughEstimator(nn.Module):
+    def __init__(self):
+        super(StraightThroughEstimator, self).__init__()
+
+    def forward(self, x):
+        x = Onehot_argmax.apply(x)
+        return x
 #straight-through estimator is used during the backward to allow the gradients to flow only to the encoder during the backpropagation.
 class Onehot_argmax(torch.autograd.Function):
     #more information at : https://pytorch.org/tutorials/beginner/examples_autograd/two_layer_net_custom_function.html
@@ -400,7 +410,7 @@ class Loss_function:
         """
         self.transform = {
                     "no_transform" : lambda x : x ,
-                    "softmax_transform" : lambda x : torch.nn.Softmax(dim=1)(x),
+                    "softmax_transform" : lambda x : torch.nn.Softmax(dim=-1)(x),
                     "zero_clamp_transform" : lambda x : x + 1e-9,
                     "sigmoid_transform": lambda x : torch.nn.Sigmoid()(x),
                     "tanh_transform": lambda x : torch.nn.Tanh()(x),

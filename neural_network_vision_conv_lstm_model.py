@@ -382,7 +382,6 @@ class Afterstate_prediction_function(torch.nn.Module):
         
         flatten = torch.nn.Flatten(1,-1)
         activation = torch.nn.ReLU()
-        dropout1d = nn.Dropout(p=0.5)
         sequence_layer_init = [nn.Linear(block_output_size_value, hidden_layer_dimensions),
                                 activation]
         sequence_layer_recursive = [nn.LSTM(hidden_layer_dimensions, hidden_layer_dimensions,number_of_hidden_layer)]
@@ -392,7 +391,6 @@ class Afterstate_prediction_function(torch.nn.Module):
                                                            sequence_layer_recursive + \
                                                            sequence_layer_out) )
                         
-        # self.fc_policy = mlp(self.block_output_size_policy,fc_policy_layers,action_space_size,)
         sequence_layer_init = [nn.Linear(block_output_size_policy, hidden_layer_dimensions),
                         activation]
         sequence_layer_recursive = [nn.LSTM(hidden_layer_dimensions, hidden_layer_dimensions,number_of_hidden_layer)]
@@ -436,52 +434,44 @@ class Encoder_function(torch.nn.Module):
                  num_channels = 3):
         super().__init__()
         
-        block_output_size_value = ((reduced_channels_value * observation_space_dimensions[2] * int(observation_space_dimensions[1]/14) * int(observation_space_dimensions[0]/14))
-            if down_sampling
-            else (reduced_channels_value * observation_space_dimensions[2] * observation_space_dimensions[1] * observation_space_dimensions[0]) )
+        self.action_space = action_dimension
+        self.down_sampling = down_sampling
+        stack_observation = observation_space_dimensions[-1]
+        downsample_net = Down_sample( stack_observation, num_channels)
+        activation = torch.nn.ReLU()
+        resblock = Residual_block(num_channels)
 
         block_output_size_policy = ((reduced_channels_policy * observation_space_dimensions[2] * int(observation_space_dimensions[1]/14) * int(observation_space_dimensions[0]/14))
             if down_sampling
             else (reduced_channels_policy * observation_space_dimensions[2] * observation_space_dimensions[1] * observation_space_dimensions[0]))
         
         resblock = Residual_block(num_channels)
-        convolution_value = torch.nn.Conv2d(num_channels, num_channels, 1) #1x1 # reduced_channels_value for second arg
         convolution_policy = torch.nn.Conv2d(num_channels, num_channels, 1) #1x1 # reduced_channels_policy for second arg
-        
         flatten = torch.nn.Flatten(1,-1)
         activation = torch.nn.ReLU()
-        dropout1d = nn.Dropout(p=0.5)
-        sequence_layer_init = [nn.Linear(block_output_size_value, hidden_layer_dimensions),
-                                activation]
-        sequence_layer_recursive = [nn.LSTM(hidden_layer_dimensions, hidden_layer_dimensions,number_of_hidden_layer)]
-        sequence_layer_out = [nn.Linear(hidden_layer_dimensions, state_dimension)]
-        
-        lstm_value = nn.Sequential(*tuple(sequence_layer_init + \
-                                                           sequence_layer_recursive + \
-                                                           sequence_layer_out) )
-                        
-        # self.fc_policy = mlp(self.block_output_size_policy,fc_policy_layers,action_space_size,)
+
         sequence_layer_init = [nn.Linear(block_output_size_policy, hidden_layer_dimensions),
                         activation]
         sequence_layer_recursive = [nn.LSTM(hidden_layer_dimensions, hidden_layer_dimensions,number_of_hidden_layer)]
         sequence_layer_out = [nn.Linear(hidden_layer_dimensions, action_dimension)]
-        downsample_net = Down_sample( 1, num_channels)
-
+        
         lstm_policy = nn.Sequential(*tuple(sequence_layer_init + \
                                                             sequence_layer_recursive + \
                                                             sequence_layer_out) )
         
         
-        sequence_1 = [ downsample_net ,resblock ] * number_of_hidden_layer
+        sequence_1 = [ resblock ] * number_of_hidden_layer
         sequence_3 = [convolution_policy,
                       flatten,
-                      lstm_policy]
-        
-        self.resnet = nn.Sequential(*tuple(sequence_1))
-        self.nn_policy = nn.Sequential(*tuple(sequence_3))
+                      lstm_policy ]
 
-        
-        self.encoder = nn.Sequential(*tuple(sequence_1 + sequence_3))
+        sequence_down_samp = [
+                              downsample_net
+                             ]  + [resblock] 
+
+                             
+                             
+        self.encoder = nn.Sequential(*tuple(sequence_down_samp+sequence_1+sequence_3))
         
     def forward(self, o_i):
         #https://openreview.net/pdf?id=X6D9bAHhBQ1 [page:5 chance outcome]
