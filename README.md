@@ -1,6 +1,6 @@
 # Stochastic MuZero
 
-Pytorch Implementation of [Stochastic MuZero](https://openreview.net/pdf?id=X6D9bAHhBQ1). Base on [Muzero Unplugged](https://github.com/DHDev0/Muzero-unplugged). 
+Pytorch Implementation of [Stochastic MuZero](https://openreview.net/pdf?id=X6D9bAHhBQ1). Base on [Muzero Unplugged](https://github.com/DHDev0/Stochastic-muzero). 
 
 It is suggested to refer to Stochastic MuZero as "unplugged," as setting the reanalyze_ratio to 0 is necessary to achieve Stochastic MuZero. This is because the original "Stochastic MuZero" paper highlights online reinforcement learning, however, as an enhancement to "MuZero Unplugged," it also encompasses offline reinforcement learning capabilities.
 
@@ -29,33 +29,33 @@ Getting started
 Local Installation
 ------------------
 
-PIP dependency : [requirement.txt](https://github.com/DHDev0/Muzero-unplugged/blob/main/requirements.txt)
+PIP dependency : [requirement.txt](https://github.com/DHDev0/Stochastic-muzero/blob/main/requirements.txt)
 ~~~bash
-git clone https://github.com/DHDev0/Muzero-unplugged.git
+git clone https://github.com/DHDev0/Stochastic-muzero.git
 
 cd Muzero-unplugged
 
 pip install -r requirements.txt
 ~~~
 
-If you experience some difficulty refer to the first cell [Tutorial](https://github.com/DHDev0/Muzero-unplugged/blob/main/tutorial.ipynb) or use the dockerfile.
+If you experience some difficulty refer to the first cell [Tutorial](https://github.com/DHDev0/Stochastic-muzero/blob/main/tutorial.ipynb) or use the dockerfile.
 
 Docker
 ------
  
 Build image: (building time: 22 min , memory consumption: 8.75 GB)
 ~~~bash
-docker build -t muzero_unplugged .
+docker build -t stochastic_muzero .
 ~~~ 
 (do not forget the ending dot)
 
 Start container:
 ~~~bash
-docker run --cpus 2 --gpus 1 -p 8888:8888 muzero_unplugged
+docker run --cpus 2 --gpus 1 -p 8888:8888 stochastic_muzero
 #or
-docker run --cpus 2 --gpus 1 --memory 2000M -p 8888:8888 muzero_unplugged
+docker run --cpus 2 --gpus 1 --memory 2000M -p 8888:8888 stochastic_muzero
 #or
-docker run --cpus 2 --gpus 1 --memory 2000M -p 8888:8888 --storage-opt size=15g muzero_unplugged
+docker run --cpus 2 --gpus 1 --memory 2000M -p 8888:8888 --storage-opt size=15g stochastic_muzero
 ~~~ 
 
 The docker run will start a jupyter lab on https://localhost:8888//lab?token=token (you need the token) with all the necessary dependency for cpu and gpu(Nvidia) compute.
@@ -69,12 +69,12 @@ Option meaning:
 
 Stop the container:
 ~~~bash
-docker stop $(docker ps -q --filter ancestor=muzero_unplugged)
+docker stop $(docker ps -q --filter ancestor=stochastic_muzero)
 ~~~ 
 
 Delete the container:
 ~~~bash
-docker rmi -f muzero_unplugged
+docker rmi -f stochastic_muzero
 ~~~ 
 
 Dependency
@@ -91,7 +91,7 @@ Library :
 * matplotlib >=3.0
 * numpy 1.21.5
 
-More details at: [requirement.txt](https://github.com/DHDev0/Muzero-unplugged/blob/main/requirements.txt)
+More details at: [requirement.txt](https://github.com/DHDev0/Stochastic-muzero/blob/main/requirements.txt)
 
 
 Usage
@@ -100,17 +100,17 @@ Usage
 Jupyter Notebook
 ---------------
 
-For practical example, you can use the [Tutorial](https://github.com/DHDev0/Muzero-unplugged/blob/main/tutorial.ipynb).
+For practical example, you can use the [Tutorial](https://github.com/DHDev0/Stochastic-muzero/blob/main/tutorial.ipynb).
 
 
 CLI
 -----------
 
-Set your config file (example): https://github.com/DHDev0/Muzero-unplugged/blob/main/config/
+Set your config file (example): https://github.com/DHDev0/Stochastic-muzero/blob/main/config/
 
 First and foremost cd to the project folder:
 ~~~bash 
-cd Muzero
+cd Stochastic-muzero
 ~~~
 
 Construct your dataset through experimentation.
