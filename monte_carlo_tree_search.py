@@ -247,9 +247,9 @@ class Monte_carlo_tree_search():
         if self.node.is_chance:
             # If the node is chance we sample from the prior.
             outcomes, probs = zip(*[(o, n.prior) for o, n in self.node.children.items()])
-            outcomes, probs = list(outcomes), list(probs)
-            remainder = (1-sum(probs))/len(probs)
-            probs = [abs(i+remainder) for i in probs]
+            outcomes, probs = list(outcomes), np.array(list(probs))
+            remainder = np.abs((1 - probs + 1e-12).mean())
+            probs = (probs + remainder)/(probs + remainder).sum()    
             outcome = np.random.choice(outcomes, p=probs)
             return outcome, self.node.children[outcome]
         
