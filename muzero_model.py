@@ -635,8 +635,11 @@ class Muzero:
         # # Check if the gradient graph is computable or not
         if not self.representation_function.training or not self.dynamics_function.training or not self.prediction_function.training:
             self.representation_function.train()
-            self.dynamics_function.train()
             self.prediction_function.train()
+            self.afterstate_prediction_function.train()
+            self.afterstate_dynamics_function.train()
+            self.dynamics_function.train()
+            self.encoder_function.train()
 
 
     # # # https://arxiv.org/pdf/1911.08265.pdf [page: 14]
