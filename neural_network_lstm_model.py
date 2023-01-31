@@ -134,25 +134,17 @@ class Afterstate_dynamics_function(nn.Module):
         super().__init__()
         self.action_space = action_dimension
 
-        lstm_reward = [
-            nn.Linear(state_dimension + action_dimension, hidden_layer_dimensions),
-            nn.LSTM(hidden_layer_dimensions, state_dimension,number_of_hidden_layer),
-            extract_tensor()
-        ]
-
         lstm_state = [
             nn.Linear(state_dimension + action_dimension, hidden_layer_dimensions),
             nn.LSTM(hidden_layer_dimensions, state_dimension,number_of_hidden_layer),
             extract_tensor(),
         ]
 
-
-        self.reward = nn.Sequential(*tuple(lstm_reward))
         self.next_state_normalized = nn.Sequential(*tuple(lstm_state))
 
     def forward(self, state_normalized, action):
         x = torch.cat([state_normalized.T, action.T]).T
-        return self.reward(x), scale_to_bound_action(self.next_state_normalized(x))
+        return scale_to_bound_action(self.next_state_normalized(x))
 
 
 class Afterstate_prediction_function(nn.Module):
