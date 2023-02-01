@@ -147,19 +147,19 @@ class ReplayBuffer():
                         
         elif self.game_sampling == "uniform":
         # uniform sampling
-            position = np.random.choice(self.buffer)
+            position = np.random.choice(range(len(self.buffer)))
                         
         return position
     
     def sample_position(self, game):
-        tag = self.buffer.index(game)
-        soft_prio_position = self.prio_position[tag]/self.prio_position[tag].sum()
-        self.buffer[tag].mouve_prio = soft_prio_position
-        
+ 
         if game.game_length == 0:
             raise Exception("Game need to return at least one reward")
         
         elif self.position_sampling == "priority":
+            tag = self.buffer.index(game)
+            soft_prio_position = self.prio_position[tag]/self.prio_position[tag].sum()
+            self.buffer[tag].mouve_prio = soft_prio_position
             # # priority sampling
             position =  np.random.choice(list(range(len(soft_prio_position))), p=soft_prio_position)
             
@@ -215,11 +215,12 @@ class ReplayBuffer():
             
         
     def update_value(self,new_value,position):
-        for count,i in enumerate(position):
-            lenght_game = self.buffer[i[0]].game_length - 1
-            for remainder, h in enumerate(range(i[1],min(self.num_unroll + i[1] , lenght_game))):
-                self.prio_position[i[0]][h] = new_value[remainder][count][0]
-            self.prio_game[i[0]] = np.max(self.prio_position[i[0]])
+        if "priority" in [self.position_sampling ,self.game_sampling]:
+            for count,i in enumerate(position):
+                lenght_game = self.buffer[i[0]].game_length - 1
+                for remainder, h in enumerate(range(i[1],min(self.num_unroll + i[1] , lenght_game))):
+                    self.prio_position[i[0]][h] = new_value[remainder][count][0]
+                self.prio_game[i[0]] = np.max(self.prio_position[i[0]])
             
     ###############################
     ### add of muzero reanalyze ###
