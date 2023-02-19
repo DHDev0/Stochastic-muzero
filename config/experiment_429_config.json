@@ -2,7 +2,7 @@
     "human_demonstration_buffer_builder": {
         "keyboard_map_filename": null,
         "set_default_noop": null,
-        "path_to_store_game": "config/429_hbuffer.pickle"
+        "path_to_store_game": null
     },
     "game": {
         "env": "CartPole-v1",

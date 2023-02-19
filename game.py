@@ -5,7 +5,7 @@ import torch
 import random
 import time
 import json
-import gym
+import gymnasium as gym
 # # # for more details on the Game class
 # # # refere to the pseudocode available at https://arxiv.org/src/1911.08265v2/anc/pseudocode.py
 

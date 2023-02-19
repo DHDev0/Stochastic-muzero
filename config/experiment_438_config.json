@@ -2,7 +2,7 @@
     "human_demonstration_buffer_builder": {
         "keyboard_map_filename": null,
         "set_default_noop": null,
-        "path_to_store_game": "config/438_hbuffer.pickle"
+        "path_to_store_game": null
     },
     "game": {
         "env": "CartPole-v1",
@@ -22,7 +22,7 @@
         "optimizer": "adam",
         "lr_scheduler": "cosineannealinglr",
         "learning_rate": 0.01,
-        "loss_type": "general_kkc",
+        "loss_type": "general",
         "num_of_epoch": 10000,
         "device": "cpu",
         "load": false,

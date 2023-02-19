@@ -10,7 +10,6 @@ import itertools
 
 import gym
 
-
 class Muzero:
 
     def __init__(self, 
@@ -165,54 +164,42 @@ class Muzero:
         # # # the size of the encoded/support for value and reward
         self.state_dimension = state_space_dimensions
         assert isinstance(state_space_dimensions,int) and state_space_dimensions >= 1 , "state_space_dimensions ∈ int | {1 < state_space_dimensions < +inf) "
-        
         # # # number of weight for your recursive layer
         self.hidden_layer_dimension = hidden_layer_dimensions
         assert isinstance(hidden_layer_dimensions,int) and hidden_layer_dimensions >= 1, "hidden_layer_dimensions ∈ int | {1 < hidden_layer_dimensions < +inf)"
-        
         # # # Recursive layer, number of layer between your init layer and end layer
         self.number_of_hidden_layer = number_of_hidden_layer
         assert isinstance(number_of_hidden_layer,int) and number_of_hidden_layer >= 0 , "number_of_hidden_layer ∈ int | {0 < number_of_hidden_layer < +inf)"
-        
         # # # K future step to simulate in the forward pass and loss function
         self.k_hypothetical_steps = k_hypothetical_steps
         assert isinstance(k_hypothetical_steps,int) and k_hypothetical_steps >= 0, "k_hypothetical_steps ∈ int | {0 < k_hypothetical_steps < +inf)"
-        
         # # # type of loss you want, muzero paper show a "general" and "game" loss 
         # # # https://arxiv.org/pdf/1911.08265.pdf [pahe: 19]
         self.loss_type = loss_type
         assert isinstance(loss_type,str) and loss_type in ["general","general_kkc","game","game_mmc"] , "loss_type ∈ {general,general_kkc,game,game_mmc) ⊆ str"
-        
         # # # Learning rate of the optimizer
         self.lr = learning_rate
         assert isinstance(learning_rate,float) and learning_rate >= 0, "x ∈ float  | {0 < learning_rate < +inf)"
-        
         # # # optimizer
         self.opt = optimizer
         assert isinstance(optimizer,str) and optimizer in ["adam","sgd"] , "optimizer ∈ {sgd,adam) ⊆ str"
-
         # # # lr scheduler
         self.sch = lr_scheduler
         assert (isinstance(lr_scheduler,str) or lr_scheduler is None) and lr_scheduler in ["steplr","cosineannealinglr","cosineannealinglrwarmrestarts","onecyclelr",None] , "lr_scheduler ∈ {steplr,cosineannealinglr,cosineannealinglrwarmrestarts,onecyclelr) ⊆ str"
-        
         # # # total number of epoch that one want to compute
         self.epoch = num_of_epoch
         assert isinstance(num_of_epoch,int) and num_of_epoch >=1, "num_of_epoch ∈ int | {1 < num_of_epoch < +inf) "
-        
         # # # count the number of epoch
         self.count = 0
         assert isinstance(self.count,int) and self.count == 0, "self.count ∈ int | {0 ≤ self.count ≤ 0) "
-        
         # # # The device to compute on. (CPU or GPU)
         self.device = device
         assert isinstance(device,str) and device in ["cpu","cuda"] , "device ∈ {cpu,cuda) ⊆ str"
-        
         # # # The tensor type for the all process. Set to bfloat16 for cpu
         if self.device == "cpu" and "float16" in str(type_format):
             self.type_format = torch.bfloat16
         else:
             self.type_format = type_format
-            
          # # # Variable to enable mix precision 
         if self.device == "cpu" and use_amp: 
             print("Currently, AutocastCPU only support Bfloat16 as the autocast_cpu_dtype")
@@ -223,46 +210,32 @@ class Muzero:
         else:
             self.use_amp = use_amp
         assert isinstance(use_amp,bool) , "use_amp ∈ bool "
-        
         # # # Variable to enable scale of the gradient for small tensor type
         self.scaler_on = True if use_amp else scaler_on
         assert isinstance(scaler_on,bool) , "scaler_on ∈ bool "
-        
         # # # Tag number for your model (can use it to save and reload it)
         self.random_tag = np.random.randint(0, 100000000)
-        
         # # # Type of desire model, which will set the type of observation.
         self.model_structure = model_structure  # 'vision_model' , 'mlp_model'
         assert isinstance(model_structure,str) and model_structure in ['mlp_model','lstm_model','vision_model','vision_conv_lstm_model','transformer_model'] , "model_structure ∈ {mlp_model,lstm_model,vision_model,vision_conv_lstm_model,transformer_model) ⊆ str"
-        
         # # # init gradient scaler
         self.scaler = torch.cuda.amp.GradScaler(enabled=use_amp)
-        
         # # # allow or not float16 in model matmul operation
         self.fp16backend = "float16" in str(self.type_format)
         assert isinstance(self.fp16backend,bool) , "self.fp16backend ∈ bool "
-        
         # # # Unlock float16 for matmul depending on self.fp16backend value
         torch.backends.cuda.matmul.allow_fp16_reduced_precision_reduction = self.fp16backend
-        
         #set default dtype 
         if not self.use_amp: 
             torch.set_default_dtype(self.type_format)
-        
         # # store all compute loss at the end of each epoch
         self.store_loss = []
-
         self.bin_method = bin_method
         assert isinstance(bin_method,str) and bin_method in ["linear_bin","uniform_bin"] , "bin_method ∈ {linear_bin,uniform_bin) ⊆ str"
-        
         self.bin_decomposition_number = bin_decomposition_number
         assert isinstance(bin_decomposition_number,int) and bin_decomposition_number >= 1, "bin_decomposition_number ∈ int  | {1 < bin_decomposition_number < +inf)"
-
-        
         self.priority_scale = priority_scale
         assert isinstance(priority_scale,(int,float)) and 0 <= priority_scale <= 1, "priority_scale ∈ float  | {0 < priority_scale < 1)"
-
-        
         self.rescale_value_loss = rescale_value_loss
         assert isinstance(rescale_value_loss,(int,float)) and 0 <= rescale_value_loss <=1, "rescale_value_loss ∈ float  | {0 < rescale_value_loss < 1)"
 
@@ -272,9 +245,7 @@ class Muzero:
             # # # mlp_model will flatten the game observation
             self.observation_dimension = self.model_obs(model_structure,observation_space_dimensions)
             # assert isinstance(self.observation_dimension,int) , "self.observation_dimension ∈ int | {1 < self.observation_dimension < +inf) "
-            
             self.model_repo()
-                
             # # # Init gym action space
             action_space = Gym_space_transform(bin=bin_method, mode=bin_decomposition_number)
             # # # will create a disctonary containing all the combinaison of action as a category
@@ -288,14 +259,6 @@ class Muzero:
             # # # the dimension of the categorical map
             self.action_dimension = action_space.dict_shape[0]
             assert (isinstance(self.action_dimension,int) and self.action_dimension >= 1), "self.action_dimension ∈ int | {1 < self.action_dimension < +inf) "
-            
-            # [self.representation_function,
-            #  self.prediction_function,
-            #  self.afterstate_prediction_function,
-            #  self.afterstate_dynamics_function,
-            #  self.dynamics_function,
-            #  self.encoder_function]
-            # # # init model 
             self.representation_function = Representation_function(observation_space_dimensions=self.observation_dimension,
                                                                         state_dimension=self.state_dimension,
                                                                         action_dimension=self.action_dimension,
@@ -331,18 +294,13 @@ class Muzero:
                                                                         action_dimension=self.action_dimension,
                                                                         hidden_layer_dimensions=self.hidden_layer_dimension,
                                                                         number_of_hidden_layer=self.number_of_hidden_layer).to(self.device)
-
-
-            
             self.initiate_model_weight()
-            
             # # # If you are not using mix precision, it will set your tensor type.
             self.model_without_amp()
             # # # If the model is on gpu, set parallele batching.
             self.model_parallel()
             # # # tell the model if you are using RGB observation or game state
             self.is_RGB = "vision" in self.model_structure
-    
             # # # init your loss function , optimizer and scheduler
             self.init_criterion_and_optimizer()
 
@@ -373,17 +331,13 @@ class Muzero:
         elif self.model_structure == 'transformer_model':
             global_imports("neural_network_transformer_decoder_model")
             
-            
-            
-            
     def model_obs(self,model_structure,observation_space_dimensions):
-        if "vision" in [model_structure]:
+        if "vision" in model_structure:
             observation_dimension_per_model = (98, 98, 3)
         else:
             observation_dimension_per_model = self.obs_space(observation_space_dimensions)
         return observation_dimension_per_model
-    
-            
+         
     def model_without_amp(self):
         if not self.use_amp:           
             self.representation_function = self.representation_function.type(self.type_format)
@@ -394,13 +348,14 @@ class Muzero:
             self.encoder_function = self.encoder_function.type(self.type_format)
                 
     def initiate_model_weight(self):
-        # initialize the model weight and bias
-        self.representation_function.apply(weights_init)
-        self.prediction_function.apply(weights_init)
-        self.afterstate_prediction_function.apply(weights_init)
-        self.afterstate_dynamics_function.apply(weights_init)
-        self.dynamics_function.apply(weights_init)
-        self.encoder_function.apply(weights_init)
+        if not "vision" in self.model_structure:
+            # initialize the model weight and bias
+            self.representation_function.apply(weights_init)
+            self.prediction_function.apply(weights_init)
+            self.afterstate_prediction_function.apply(weights_init)
+            self.afterstate_dynamics_function.apply(weights_init)
+            self.dynamics_function.apply(weights_init)
+            self.encoder_function.apply(weights_init)
                 
     def model_parallel(self):
         if torch.cuda.device_count() > 1 and self.device != "cpu":
@@ -411,43 +366,13 @@ class Muzero:
             self.dynamics_function = torch.nn.DataParallel(self.dynamics_function)
             self.encoder_function = torch.nn.DataParallel(self.encoder_function)
             
-
-
-
     def init_criterion_and_optimizer(self):
         # # # https://pytorch.org/docs/stable/nn.html#loss-functions
         # # # if you prefer to use pytorch loss function
-
-        # refer to : https://arxiv.org/pdf/1911.08265.pdf [page 19]
+                                            
         if self.loss_type == "general":
             self.criterion_value = Loss_function(parameter = (self.action_dimension),
                                                 prediction = ["softmax_transform","zero_clamp_transform"], 
-                                                label = ["no_transform"]
-                                                ).cross_entropy
-            self.criterion_reward = Loss_function(parameter = (self.action_dimension),
-                                                prediction = ["softmax_transform","zero_clamp_transform"],
-                                                label = ["no_transform"]
-                                                ).cross_entropy
-            self.criterion_policy = Loss_function(prediction = ["softmax_transform","zero_clamp_transform"],
-                                                label = ["no_transform"]
-                                                ).cross_entropy
-            self.value_afterstate_loss = Loss_function(prediction = ["softmax_transform","zero_clamp_transform"],
-                                                label = ["no_transform"]
-                                                ).cross_entropy
-            
-            self.distribution_afterstate_loss = Loss_function(prediction = ["softmax_transform","zero_clamp_transform"],
-                                                label = ["no_transform"]
-                                                ).cross_entropy
-            
-            self.vq_vae_commitment_cost = Loss_function(parameter = (self.action_dimension),
-                                                prediction = ["no_transform"],
-                                                label = ["no_transform"]
-                                                ).mse
-
-                                            
-        if self.loss_type == "general_kkc":
-            self.criterion_value = Loss_function(parameter = (self.action_dimension),
-                                                prediction = ["softmax_transform","zero_clamp_transform"], 
                                                 label = ["zero_clamp_transform"]
                                                 ).kldiv
             self.criterion_reward = Loss_function(parameter = (self.action_dimension),
@@ -456,20 +381,17 @@ class Muzero:
                                                 ).kldiv
             self.criterion_policy = Loss_function(prediction = ["softmax_transform","zero_clamp_transform"],
                                                 label = ["zero_clamp_transform"]
-                                                ).cross_entropy
+                                                ).kldiv
             self.value_afterstate_loss = Loss_function(prediction = ["softmax_transform","zero_clamp_transform"],
-                                                label = ["no_transform"]
+                                                label = ["zero_clamp_transform"]
                                                 ).kldiv
             self.distribution_afterstate_loss = Loss_function(prediction = ["softmax_transform","zero_clamp_transform"],
-                                                label = ["no_transform"]
-                                                ).cross_entropy
+                                                label = ["zero_clamp_transform"]
+                                                ).kldiv
             self.vq_vae_commitment_cost = Loss_function(parameter = (self.action_dimension),
-                                                prediction = ["no_transform"],
-                                                label = ["no_transform"]
-                                                ).mse
-
-            
-        # refer to : https://arxiv.org/pdf/1911.08265.pdf [page 19]
+                                                prediction = ["zero_clamp_transform"],
+                                                label = ["zero_clamp_transform"]
+                                                ).kldiv   
         if self.loss_type == "game":
             self.criterion_value = Loss_function(parameter = (self.action_dimension),
                                                 prediction = ["softmax_transform","zero_clamp_transform"], 
@@ -478,44 +400,20 @@ class Muzero:
             self.criterion_reward = Loss_function(parameter = (self.action_dimension),
                                                 prediction = ["softmax_transform","zero_clamp_transform"],
                                                 label = ["no_transform"]
-                                                ).zero_loss
+                                                ).mse
             self.criterion_policy = Loss_function(prediction = ["softmax_transform","zero_clamp_transform"],
-                                                label = ["no_transform"]
-                                                ).cross_entropy
+                                                label = ["zero_clamp_transform"]
+                                                ).kldiv
             self.value_afterstate_loss = Loss_function(prediction = ["softmax_transform","zero_clamp_transform"],
                                                 label = ["no_transform"]
                                                 ).mse
             self.distribution_afterstate_loss = Loss_function(prediction = ["softmax_transform","zero_clamp_transform"],
-                                                label = ["no_transform"]
-                                                ).cross_entropy
+                                                label = ["zero_clamp_transform"]
+                                                ).kldiv
             self.vq_vae_commitment_cost = Loss_function(parameter = (self.action_dimension),
-                                                prediction = ["no_transform"],
+                                                prediction = ["zero_clamp_transform"],
                                                 label = ["no_transform"]
                                                 ).mse
-            
-        if self.loss_type == "game_mmc":
-            self.criterion_value = Loss_function(parameter = (self.action_dimension),
-                                                prediction = ["softmax_transform","zero_clamp_transform"], 
-                                                label = ["no_transform"]
-                                                ).mse
-            self.criterion_reward = Loss_function(parameter = (self.action_dimension),
-                                                prediction = ["softmax_transform","zero_clamp_transform"],
-                                                label = ["no_transform"]
-                                                ).mse
-            self.criterion_policy = Loss_function(prediction = ["softmax_transform","zero_clamp_transform"],
-                                                label = ["no_transform"]
-                                                ).cross_entropy
-            self.value_afterstate_loss = Loss_function(prediction = ["softmax_transform","zero_clamp_transform"],
-                                                label = ["no_transform"]
-                                                ).mse
-            self.distribution_afterstate_loss = Loss_function(prediction = ["softmax_transform","zero_clamp_transform"],
-                                                label = ["no_transform"]
-                                                ).cross_entropy
-            self.vq_vae_commitment_cost = Loss_function(parameter = (self.action_dimension),
-                                                prediction = ["no_transform"],
-                                                label = ["no_transform"]
-                                                ).mse
-
         # # # model parameter feed to the optimizer
         # # # you can change "lr" to specify particular lr for different model (delete lr= in optim)
         self.params = [{'params': self.representation_function.parameters(), 'lr': self.lr},
@@ -547,7 +445,6 @@ class Muzero:
         if self.sch == self.scheduler_lr[3]:
             self.scheduler = torch.optim.lr_scheduler.OneCycleLR(self.optimizer, max_lr=self.lr, total_steps=self.epoch)
 
-
     # # # the batch reshape is kept to match the
     # # # muzero pseudo code, instead of using a
     # # # more traditional Dataset class object
@@ -568,6 +465,7 @@ class Muzero:
                  dtype=self.type_format, device=self.device) for i in range(len(batch[0][1]))) # need to fix
 
         # # batch of [value, policy, reward]
+        # print([(np.array([b[2][i][2] for b in batch])) for i in range(len(batch[0][2]))])
         Y.extend(
                 [
                 torch.tensor([[b[2][i][0]] for b in batch], dtype=self.type_format, device=self.device), 
@@ -583,8 +481,6 @@ class Muzero:
         
         return X, Y, batch_importance_sampling_ratio, batch_game_position 
 
-
-
     def obs_space(self, obs):
         def checker(container):
             if type(container) == gym.spaces.Discrete:
@@ -596,8 +492,6 @@ class Muzero:
             return int(sum(checker(i) for i in obs))
         else:
             return int(checker(obs))
-
-
 
     def one_hot_encode(self, action, counter_part):
 
@@ -628,8 +522,6 @@ class Muzero:
                                for action_select in action], dim=0).type(self.type_format)
         return action
 
-
-
     def training_mode(self):
         # # # https://pytorch.org/tutorials/beginner/saving_loading_models.html
         # # Check if the gradient graph is computable or not
@@ -640,7 +532,6 @@ class Muzero:
             self.afterstate_dynamics_function.train()
             self.dynamics_function.train()
             self.encoder_function.train()
-
 
     # # # https://arxiv.org/pdf/1911.08265.pdf [page: 14]
     # # # SCALE TRANSFORM for value and reward prediction
@@ -677,8 +568,6 @@ class Muzero:
         support_base = support_base.clone().type(weight1.dtype).scatter_(1, support1, weight1)
         return support_base
 
-
-
     # # # https://arxiv.org/pdf/1911.08265.pdf [page: 14]
     # # # SCALE TRANSFORM for value and reward prediction
     # # # Apply a transformation φ to the scalar reward and value targets in order
@@ -701,8 +590,6 @@ class Muzero:
                                             (torch.abs(y) + 1 + 0.001)) - 1) / (2 * 0.001)) ** 2 - 1)
         return y
 
-
-
     def rescale_gradient_and_sum_loss(self,loss,gradient_scale):
         self.mean_div += 1
         # # # https://arxiv.org/pdf/1911.08265.pdf [page: 15]
@@ -717,7 +604,7 @@ class Muzero:
     # # # https://stephencowchau.medium.com/pytorch-module-call-vs-forward-c4df3ff304b1
     # # compute the forward pass of the model
     def compute_forward(self, X):
-        # # # gradient scaling value
+        # # # gradient scaling value (keep the gradient value if you want to try with scaling gradient)
         grad_scale = 0.5
 
         # # # "X[0] is the initial observation state ( observation/or hidden state )
@@ -736,7 +623,7 @@ class Muzero:
             afterstate  = self.afterstate_dynamics_function(state_normalized, one_hot_encode_action)
             afterstate_prediction_prob,afterstate_prediction_value = self.afterstate_prediction_function(afterstate)
             chance_code ,encode_output =  self.encoder_function(X[0][k])
-            reward, next_state_normalized = self.dynamics_function(afterstate, chance_code)
+            reward, next_state_normalized = self.dynamics_function(afterstate, self.one_hot_encode(chance_code, state_normalized))
             policy, value = self.prediction_function(next_state_normalized)
             
             # # # X[0][k] are next observation
@@ -749,7 +636,7 @@ class Muzero:
             # # # Reference to register_hook()
             # # # https://pytorch.org/docs/stable/generated/torch.Tensor.register_hook.html
             # next_state_normalized.register_hook(lambda grad: grad * grad_scale)
-            
+            # afterstate.register_hook(lambda grad: grad * grad_scale)
             # next_embedded_state  become the new embedded_state
             state_normalized = next_state_normalized 
             
@@ -761,9 +648,7 @@ class Muzero:
                            afterstate_prediction_prob,
                            encode_output, 
                            chance_code ])
-            
         return Y_pred
-    
 
     def evaluate_loss(self):
         
@@ -802,8 +687,8 @@ class Muzero:
                 loss = self.distribution_afterstate_loss(afterstate_prediction_prob, afterstate_target_prob)
                 self.rescale_gradient_and_sum_loss(loss, gradient_scale)
 
-                afterstate_prediction_prob, afterstate_target_prob = pred[6], pred[5]
-                loss = self.distribution_afterstate_loss(afterstate_prediction_prob, afterstate_target_prob)
+                afterstate_prediction_prob, afterstate_target_prob = pred[5] , pred[6]
+                loss = self.vq_vae_commitment_cost(afterstate_prediction_prob, afterstate_target_prob)
                 self.rescale_gradient_and_sum_loss(loss, gradient_scale)
             
             #compute priority to actualize the replay buffer with new value
@@ -819,24 +704,16 @@ class Muzero:
         #                     self.dynamics_function,
         #                     self.prediction_function),
         #                     l1_weight_decay = 0.0001)
-
         # # L2 regularization
         self.loss_nn += l2((self.representation_function,
                             self.dynamics_function,
                             self.prediction_function),
                             l2_weight_decay = 0.0001)
-
         
-
         if self.batch_importance_sampling_ratio.nelement() != 1:
             self.loss_nn *= self.batch_importance_sampling_ratio
-
-        
         self.loss_nn = self.loss_nn.mean()
 
-            
-
-        
     def backpropagation(self):
         
         # # # https://pytorch.org/docs/stable/generated/torch.optim.Optimizer.zero_grad.html
@@ -890,15 +767,12 @@ class Muzero:
             [self.loss_nn.data.clone().detach().cpu()] + list(self.loss))
         
     def train(self, batch):
-        
         self.training_mode()
-        
         # # list to store the computed loss
         self.loss = []
         self.mean_div = 0
         # # reformate sample_batch() to pytorch batch without dataloader
         self.X, self.Y, self.batch_importance_sampling_ratio, self.batch_game_position  = self.reshape_batch(batch)
-        
         if self.use_amp:
             with torch.autocast(device_type=self.device, dtype=self.type_format, enabled=self.use_amp),torch.set_grad_enabled(True):
                 self.Y_pred = self.compute_forward(self.X)
@@ -908,7 +782,6 @@ class Muzero:
             self.evaluate_loss()
             
         self.backpropagation()
-        
         return self.new_priority , self.batch_game_position
         
 
