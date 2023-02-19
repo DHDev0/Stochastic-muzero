@@ -122,6 +122,8 @@ def scaler(x, newmin=0, newmax=1):
 
 
 def temperature_scheduler(epoch=1, actual_epoch=1, mode = "static_temperature"):
+    if isinstance(mode,(float,int)):
+        return mode
     # # # personal add
     # # # will scale the remperature to an opposite tanh distribution ( 1 - tanh )
     # # # of chosen bound ( look like cosineannealing for reference)
@@ -268,7 +270,7 @@ def learning_cycle(number_of_iteration=10000,
         # # # sum the average reward of all self_play
         reward.append(sum(cache_reward)/len(cache_reward))
 
-        # # # save best model. self_play serve as dataset and performace test
+        # # save best model. self_play serve as dataset and performace test
         did_better = None if reward[-1] == max(reward) and not all(g.reanalyzed for g in game ) else "do not save"
         if did_better is None: 
             print(" "*1000,end='\r')
@@ -411,9 +413,6 @@ def play_game_from_checkpoint(game_to_play='CartPole-v1',
         state = gameplay.observation(iteration=counter,
                                      feedback=observation_reward_done_info)
         
-        # render the env
-        if render:
-            gameplay.vision()
         # # # run monte carlos tree search inference
         # # Train [False or True] mean with or without dirichlet at the root
         mcts = monte_carlo_tree_search
@@ -431,6 +430,10 @@ def play_game_from_checkpoint(game_to_play='CartPole-v1',
         # # # print the number of mouve, action and policy
         
         action, policy, _ = gameplay.policy_action_reward_from_tree(tree)
+        # render the env
+        if render:
+            gameplay.vision()
+            
         if verbose:
             print(
                 f"Mouve number: {counter+1} ,\ Action: {muzero.action_dictionnary[action[np.argmax(policy/policy.sum())]]}, Policy: {policy/policy.sum()}")
@@ -441,8 +444,8 @@ def play_game_from_checkpoint(game_to_play='CartPole-v1',
             action_ls.append(
                 muzero.action_dictionnary[action[np.argmax(policy/policy.sum())]])
             policy_ls.append(policy/policy.sum())
-        if gameplay.terminal or game_iter == counter:
-            break
+        # if gameplay.terminal or game_iter == counter:
+        #     break
     mcts.cycle.global_reset()
     gameplay.close()
     if benchmark:
