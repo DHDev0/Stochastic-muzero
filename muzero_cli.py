@@ -149,7 +149,7 @@ def main(cli_input):
                         priority_scale=muzero.priority_scale)
         
         # # # train model (if you choice vison model it will render the game)
-        epoch_pr , loss , reward = learning_cycle(number_of_iteration = config["learning_cycle"]["number_of_iteration"], # number of epoch(step) in  muzero should be the |total amount of number_of_iteration x number_of_training_before_self_play|
+        epoch_pr, loss, reward, configuration = learning_cycle(number_of_iteration = config["learning_cycle"]["number_of_iteration"], # number of epoch(step) in  muzero should be the |total amount of number_of_iteration x number_of_training_before_self_play|
                                                   number_of_self_play_before_training = config["learning_cycle"]["number_of_self_play_before_training"], # number of game played record in the replay buffer before training
                                                   number_of_training_before_self_play = config["learning_cycle"]["number_of_training_before_self_play"], # number of epoch made by the model before selplay
                                                   model_tag_number = config["learning_cycle"]["model_tag_number"], # tag number use to generate checkpoint
