@@ -121,8 +121,8 @@ def main(cli_input):
                                      position_sampling = config["replaybuffer"]["position_sampling"],
                                      reanalyze_stack = [ReanalyseBuffer(),
                                                         human_buffer,
-                                                        MostRecentBuffer(max_buffer_size = 20),
-                                                        HighestRewardBuffer()],
+                                                        MostRecentBuffer(max_buffer_size = 10),
+                                                        HighestRewardBuffer(max_buffer_size = 10)],
                                      reanalyse_fraction=config["replaybuffer"]["reanalyse_fraction"], # porcentage/100 of reanalyze vs new_game
                                      reanalyse_fraction_mode = config["replaybuffer"]["reanalyse_fraction_mode"] # "chance" or "ratio"
                                      ) # 'uniform' or "priority" (will sample position in game randomly or with a priority distribution)
