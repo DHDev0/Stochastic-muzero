@@ -8,7 +8,7 @@ from neural_network_mlp_model import l1, l2, weights_init
 from neural_network_mlp_model import Loss_function
 import itertools
 
-import gym
+import gymnasium as gym
 
 class Muzero:
 
