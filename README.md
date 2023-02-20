@@ -1,6 +1,6 @@
 # Stochastic MuZero
 
-Pytorch Implementation of [Stochastic MuZero](https://openreview.net/pdf?id=X6D9bAHhBQ1). Base on [Muzero Unplugged](https://github.com/DHDev0/Stochastic-muzero). 
+Pytorch Implementation of [Stochastic MuZero](https://openreview.net/pdf?id=X6D9bAHhBQ1). Base on [Muzero Unplugged](https://github.com/DHDev0/Muzero-unplugged). 
 
 It is suggested to refer to Stochastic MuZero as "unplugged," as setting the reanalyze_ratio to 0 is necessary to achieve Stochastic MuZero. This is because the original "Stochastic MuZero" paper highlights online reinforcement learning, however, as an enhancement to "MuZero Unplugged," it also encompasses offline reinforcement learning capabilities.
 
