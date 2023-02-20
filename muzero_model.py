@@ -176,7 +176,7 @@ class Muzero:
         # # # type of loss you want, muzero paper show a "general" and "game" loss 
         # # # https://arxiv.org/pdf/1911.08265.pdf [pahe: 19]
         self.loss_type = loss_type
-        assert isinstance(loss_type,str) and loss_type in ["general","general_kkc","game","game_mmc"] , "loss_type ∈ {general,general_kkc,game,game_mmc) ⊆ str"
+        assert isinstance(loss_type,str) and loss_type in ["general","game"] , "loss_type ∈ {general,general_kkc,game,game_mmc) ⊆ str"
         # # # Learning rate of the optimizer
         self.lr = learning_rate
         assert isinstance(learning_rate,float) and learning_rate >= 0, "x ∈ float  | {0 < learning_rate < +inf)"
