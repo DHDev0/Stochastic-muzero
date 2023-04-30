@@ -6,6 +6,8 @@ It is suggested to refer to Stochastic MuZero as "unplugged," as setting the rea
 
 [MuZero](https://github.com/DHDev0/Muzero) -> [MuZero Unplugged](https://github.com/DHDev0/Muzero-unplugged) -> [Stochastic MuZero](https://github.com/DHDev0/Stochastic-muzero)
 
+*A scheduled update is planned for the release of PyTorch 2.1.
+
 Table of contents
 =================
 <!--ts-->
