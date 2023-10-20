@@ -30,9 +30,6 @@ def play_game_ray(environment=None,
     should_reanalyze = replay_buffer.should_reanalyse()
     if should_reanalyze:
         reanalyze_observation = replay_buffer.reanalyse_buffer_sample_game()
-    else:
-        if environment.env.metadata['render_fps'] is None:
-            environment.env.metadata['render_fps'] = 30
 
     counter = 0
     observation_reward_done_info = None
@@ -70,9 +67,6 @@ def play_game(environment=None,
     should_reanalyze = replay_buffer.should_reanalyse()
     if should_reanalyze:
         reanalyze_observation = replay_buffer.reanalyse_buffer_sample_game()
-    else:
-        if environment.env.metadata['render_fps'] is None:
-            environment.env.metadata['render_fps'] = 30
 
     counter = 0
     observation_reward_done_info = None
@@ -274,7 +268,7 @@ def learning_cycle(number_of_iteration=10000,
         did_better = None if reward[-1] == max(reward) and not all(g.reanalyzed for g in game ) else "do not save"
         if did_better is None: 
             print(" "*1000,end='\r')
-            print("save model with : ", reward[-1]," reward")
+            print("save model with : ", reward[-1]," reward, epoch : ", ep)
         muzero_model.save_model(
             directory="model_checkpoint", 
             tag=model_tag_number, 
@@ -365,8 +359,8 @@ def play_game_from_checkpoint(game_to_play='CartPole-v1',
     # play with model of choice (will repeat variable for explanatory purpose)
     # # # choice game env
     if render:
-        try: env = gym.make(game_to_play, render_mode = 'human')
-        except: env = gym.make(game_to_play, render_mode = "rgb_array")
+        try: env = gym.make(game_to_play)
+        except: env = gym.make(game_to_play)
     else: env = gym.make(game_to_play)
     
     # # # initialize model class without initializing a neural network
@@ -588,8 +582,8 @@ def generate_config_file(env = None,
         list_holder.append(dict_env)
     
     if env != None:
-        try: rendermode = env.spec.kwargs['render_mode'] if env.spec.kwargs['render_mode'] != None else None
-        except: rendermode = None
+        try: rendermode = env.spec.kwargs['render_mode'] if env.spec.kwargs['render_mode'] != None else "human"
+        except: rendermode = "human"
         dict_env = {"game" : {"env" : env.spec.id,
                               "render" : rendermode}
                     }
