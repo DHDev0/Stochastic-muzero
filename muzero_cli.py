@@ -133,7 +133,7 @@ def main(cli_input):
                                        discount = config["monte_carlo_tree_search"]["discount"], 
                                        root_dirichlet_alpha = config["monte_carlo_tree_search"]["root_dirichlet_alpha"], 
                                        root_exploration_fraction = config["monte_carlo_tree_search"]["root_exploration_fraction"],
-                                       num_simulations = config["monte_carlo_tree_search"]["maxium_action_sample"],# number of node per level ( width of the tree )
+                                       num_simulations = config["monte_carlo_tree_search"]["num_simulations"],# number of node per level ( width of the tree )
                                        maxium_action_sample = config["monte_carlo_tree_search"]["maxium_action_sample"],# number of node per level ( width of the tree )
                                        number_of_player = config["monte_carlo_tree_search"]["number_of_player"], 
                                        custom_loop = config["monte_carlo_tree_search"]["custom_loop"])
@@ -246,3 +246,4 @@ def main(cli_input):
 
 if __name__ == "__main__":
     main(sys.argv[:])
+
